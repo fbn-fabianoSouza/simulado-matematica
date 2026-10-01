@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado Interativo de Matemática - 5º Ano</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+    }
+    .font-display {
+      font-family: 'Fredoka', 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold font-display text-slate-900 tracking-tight">Simulado de Matemática</h1>
+          <p class="text-xs font-medium text-slate-500 hidden sm:block">Geometria, Retas, Ângulos & Trajetos</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2">
+        <button id="btnViewHistory" onclick="showHistoryModal()" class="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center transition">
+          <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Histórico (<span id="historyCount">0</span>)
+        </button>
+        <button id="btnRestartDirect" onclick="startNewQuiz()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition">
+          Novo Simulado
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow">
+
+    <!-- WELCOME / START SCREEN -->
+    <section id="welcomeScreen" class="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/80 text-center max-w-2xl mx-auto">
+      <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl shadow-inner">
+        📐✨
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 mb-3">Pronto para testar seus conhecimentos?</h2>
+      <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+        Este simulado seleciona <strong>10 questões desafiadoras</strong> sorteadas aleatoriamente do conteúdo de geometria do livro didático. Cada tentativa traz novas perguntas e ordem diferente para um treino sem vícios!
+      </p>
+
+      <!-- Topic Badges -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8 text-xs font-semibold text-slate-600">
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">🧊 Poliedros e Faces</div>
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">📦 Planificações</div>
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">📏 Retas & Semirretas</div>
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">🔄 Ângulos & Giros</div>
+      </div>
+
+      <button onclick="startNewQuiz()" class="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold text-base shadow-lg shadow-indigo-200 transition transform active:scale-95">
+        Começar o Simulado (10 Questões) →
+      </button>
+    </section>
+
+    <!-- ACTIVE QUIZ SCREEN -->
+    <section id="quizScreen" class="hidden space-y-6">
+      <!-- Progress Bar & Status -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-500 mb-2">
+          <span>Questão <span id="currentQuestionNum" class="text-indigo-600 text-base font-bold">1</span> de <span id="totalQuestionsCount">10</span></span>
+          <span id="topicBadge" class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium">Tópico</span>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="progressBarFill" class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300 w-1/10"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+        <!-- Question Enunciation -->
+        <h3 id="questionText" class="text-base sm:text-lg font-bold text-slate-900 leading-snug mb-4">
+          <!-- Dynamically populated -->
+        </h3>
+
+        <!-- Interactive Diagram / Visual SVG Container (Optional per question) -->
+        <div id="questionVisualContainer" class="hidden mb-6 p-4 bg-slate-50 border border-slate-200/70 rounded-2xl flex items-center justify-center overflow-x-auto custom-scrollbar">
+          <!-- SVGs rendered here -->
+        </div>
+
+        <!-- Multiple Choice Options -->
+        <div id="optionsContainer" class="space-y-3">
+          <!-- Dynamically generated options buttons -->
+        </div>
+
+        <!-- Feedback alert when trying to advance without picking -->
+        <p id="selectionWarning" class="hidden text-xs font-semibold text-rose-600 mt-3 flex items-center">
+          <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+          Por favor, selecione uma resposta antes de avançar!
+        </p>
+      </div>
+
+      <!-- Footer Buttons for Quiz -->
+      <div class="flex items-center justify-between">
+        <button id="btnPrev" onclick="navigateQuestion(-1)" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition flex items-center disabled:opacity-40 disabled:cursor-not-allowed">
+          ← Anterior
+        </button>
+        <button id="btnNext" onclick="handleNextClick()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-100 transition flex items-center">
+          <span id="btnNextText">Próxima</span> →
+        </button>
+      </div>
+    </section>
+
+    <!-- RESULTS AND DETAILED CORRECTION SCREEN -->
+    <section id="resultsScreen" class="hidden space-y-8">
+      <!-- Performance Summary Card -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/90 text-center relative overflow-hidden">
+        <div id="resultHeroBg" class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-emerald-400 to-indigo-500"></div>
+
+        <div id="scoreEmoji" class="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-3xl">
+          🎉
+        </div>
+        <h2 id="scoreTitle" class="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 mb-1">Resultado Final</h2>
+        <p id="scoreSubtitle" class="text-slate-500 text-sm mb-6">Confira abaixo seu desempenho e o que você aprendeu.</p>
+
+        <!-- Metrics Display -->
+        <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto mb-6">
+          <div class="p-3 sm:p-4 rounded-2xl bg-indigo-50 border border-indigo-100/60">
+            <span class="block text-xl sm:text-2xl font-black text-indigo-700" id="statScore">0/10</span>
+            <span class="text-xs font-semibold text-indigo-900/60 uppercase tracking-wider">Pontuação</span>
+          </div>
+          <div class="p-3 sm:p-4 rounded-2xl bg-emerald-50 border border-emerald-100/60">
+            <span class="block text-xl sm:text-2xl font-black text-emerald-700" id="statPercentage">0%</span>
+            <span class="text-xs font-semibold text-emerald-900/60 uppercase tracking-wider">Aproveitamento</span>
+          </div>
+          <div class="p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+            <span class="block text-xl sm:text-2xl font-black text-slate-700" id="statAttemptNum">#1</span>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tentativa</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button onclick="startNewQuiz()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-100 transition">
+            Fazer Novo Simulado (10 Questões Novas)
+          </button>
+          <button onclick="showHistoryModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-sm transition">
+            Ver Todo o Histórico
+          </button>
+        </div>
+      </div>
+
+      <!-- Pedagogical Corrections Section -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-slate-900 font-display">Gabarito e Explicações Detalhadas</h3>
+          <span class="text-xs text-slate-500">Analise os erros para fixar o aprendizado</span>
+        </div>
+
+        <div id="correctionList" class="space-y-4">
+          <!-- Dynamically populated review cards -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Evolution & History -->
+  <div id="historyModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+            📊
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 font-display">Histórico de Desempenho</h3>
+        </div>
+        <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- History Table / Content -->
+      <div class="flex-grow overflow-y-auto custom-scrollbar my-4">
+        <div id="historyEmptyState" class="hidden text-center py-12 text-slate-400">
+          <p class="text-4xl mb-2">📝</p>
+          <p class="text-sm font-medium">Nenhum simulado finalizado ainda.</p>
+          <p class="text-xs text-slate-400 mt-1">Conclua um simulado de 10 questões para registrar seu histórico!</p>
+        </div>
+
+        <div id="historyTableContainer" class="space-y-3">
+          <!-- Entries rendered here -->
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+        <button onclick="clearHistoryData()" class="text-xs text-rose-600 hover:text-rose-700 font-semibold hover:underline">
+          Limpar histórico
+        </button>
+        <button onclick="closeHistoryModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-400">
+      Simulado baseado nos materiais didáticos (Capítulos 3 e 6: Prismas, Pirâmides, Cilindros, Retas, Ângulos e Trajetos).
+    </div>
+  </footer>
+
+  <script>
+    /* Question Bank containing detailed curriculum questions mapped to pages 48-56 and 90-105 */
+    const QUESTION_BANK = [
+      // 1. Poliedros vs Corpos Redondos (Páginas 48 a 50)
+      {
+        id: "geo_esp_01",
+        topic: "Geometria Espacial",
+        text: "Uma lata de milho em conserva e uma casquinha de sorvete lembram, respectivamente, quais figuras geométricas espaciais?",
+        options: [
+          "Cilindro e cone",
+          "Prisma e pirâmide",
+          "Esfera e cilindro",
+          "Cone e cubo"
+        ],
+        correct: 0,
+        explanation: "A lata tem duas bases circulares planas e superfície lateral arredondada, sendo um cilindro. A casquinha tem uma base circular e afunila até um vértice, sendo um cone. Ambos são corpos redondos (não poliedros)."
+      },
+      {
+        id: "geo_esp_02",
+        topic: "Geometria Espacial",
+        text: "O que diferencia essencialmente um poliedro de um corpo redondo (não poliedro)?",
+        options: [
+          "O poliedro é formado apenas por superfícies planas (faces), enquanto o corpo redondo possui ao menos uma superfície curva.",
+          "O poliedro sempre tem formato de bola e rola com facilidade.",
+          "O corpo redondo possui vértices e arestas retas, enquanto o poliedro não possui.",
+          "O poliedro não possui faces nem lados."
+        ],
+        correct: 0,
+        explanation: "Por definição dos livros didáticos, poliedros têm sua superfície formada unicamente por partes planas (faces). Se tiver qualquer parte curva ou arredondada, é classificado como não poliedro (corpo redondo)."
+      },
+
+      // 2. Elementos de um Poliedro (Páginas 51 a 53)
+      {
+        id: "geo_esp_03",
+        topic: "Elementos dos Poliedros",
+        text: "Mário está montando o esqueleto de um cubo utilizando canudos para as arestas e bolinhas de massinha para os vértices. De quantos canudos e quantas bolinhas ele precisará, respectivamente?",
+        options: [
+          "12 canudos (arestas) e 8 bolinhas (vértices)",
+          "8 canudos (arestas) e 12 bolinhas (vértices)",
+          "6 canudos (arestas) e 8 bolinhas (vértices)",
+          "12 canudos (arestas) e 6 bolinhas (vértices)"
+        ],
+        correct: 0,
+        explanation: "O cubo (e o bloco retangular) possui exatamente 6 faces, 12 arestas (representadas pelos canudos) e 8 vértices (representados pelas bolinhas de massinha)."
+      },
+      {
+        id: "geo_esp_04",
+        topic: "Elementos dos Poliedros",
+        text: "Uma pirâmide de base quadrada possui quantas faces (F), quantos vértices (V) e quantas arestas (A)?",
+        options: [
+          "F = 5, V = 5, A = 8",
+          "F = 6, V = 8, A = 12",
+          "F = 5, V = 6, A = 9",
+          "F = 4, V = 4, A = 6"
+        ],
+        correct: 0,
+        explanation: "A pirâmide de base quadrada tem 1 base quadrada + 4 faces laterais triangulares = 5 faces. Possui 4 vértices na base + 1 no topo = 5 vértices. E tem 4 arestas na base + 4 arestas laterais = 8 arestas."
+      },
+
+      // 3. Prismas vs Pirâmides (Páginas 53 a 56)
+      {
+        id: "geo_esp_05",
+        topic: "Prismas e Pirâmides",
+        text: "Ao comparar um prisma de base triangular com uma pirâmide de base triangular, qual é a principal diferença na quantidade e formato de suas faces?",
+        options: [
+          "O prisma possui 2 bases triangulares e faces laterais retangulares; a pirâmide possui apenas 1 base e faces laterais triangulares.",
+          "O prisma não possui arestas retas e a pirâmide possui.",
+          "Ambos têm exatamente a mesma quantidade de bases e o mesmo formato de faces laterais.",
+          "A pirâmide possui faces laterais quadradas e o prisma possui faces curvas."
+        ],
+        correct: 0,
+        explanation: "Prismas sempre se caracterizam por possuir 2 bases idênticas e paralelas, com faces laterais retangulares. Já as pirâmides possuem apenas 1 base, e todas as suas faces laterais são triângulos que se encontram em um único vértice superior."
+      },
+      {
+        id: "geo_esp_06",
+        topic: "Planificações",
+        text: "Ao desmontar (planificar) um cilindro reto, quais figuras planas nós encontramos em sua folha aberta?",
+        options: [
+          "2 círculos (as bases) e 1 retângulo (a superfície lateral aberta)",
+          "1 círculo e 1 setor circular",
+          "6 quadrados iguais",
+          "2 triângulos e 3 retângulos"
+        ],
+        correct: 0,
+        explanation: "A planificação do cilindro é composta por duas bases circulares idênticas e por uma região retangular correspondente à superfície lateral quando estendida no plano."
+      },
+
+      // 4. Retas, Semirretas e Segmentos de Reta (Páginas 90 a 93)
+      {
+        id: "reta_01",
+        topic: "Retas e Segmentos",
+        text: "Sobre a reta, a semirreta e o segmento de reta, assinale a afirmativa CORRETA:",
+        options: [
+          "O segmento de reta tem começo e fim bem definidos, podendo ter seu comprimento medido com uma régua.",
+          "A reta tem início em um ponto e fim em outro ponto delimitado.",
+          "A semirreta não tem início e é infinita para os dois lados.",
+          "Por dois pontos distintos é possível traçar infinitas retas diferentes."
+        ],
+        correct: 0,
+        explanation: "O segmento de reta é uma parte da reta delimitada por dois pontos extremos (tem começo e fim) e é mensurável. A reta é infinita nos dois sentidos, e a semirreta tem um ponto de origem mas segue infinita em um só sentido."
+      },
+      {
+        id: "reta_02",
+        topic: "Retas e Segmentos",
+        text: "Qual é o caminho mais curto possível entre dois pontos distintos traçados em uma folha plana?",
+        options: [
+          "O segmento de reta que liga esses dois pontos.",
+          "Uma linha curva em forma de arco.",
+          "Uma linha ondulada que passa pelo centro.",
+          "Qualquer linha que ligue os dois pontos tem rigorosamente o mesmo comprimento."
+        ],
+        correct: 0,
+        explanation: "Conforme estudado na página 93, a menor distância entre dois pontos é a linha reta, ou seja, o segmento de reta que os une diretamente."
+      },
+
+      // 5. Retas Paralelas e Concorrentes (Páginas 94 a 95 e 103)
+      {
+        id: "reta_03",
+        topic: "Posições das Retas",
+        text: "Duas retas situadas no mesmo plano que seguem na mesma direção, mantêm sempre a mesma distância entre si e NUNCA se cruzam são chamadas de:",
+        options: [
+          "Retas paralelas",
+          "Retas concorrentes",
+          "Retas curvas",
+          "Retas perpendiculares"
+        ],
+        correct: 0,
+        explanation: "Retas paralelas nunca se encontram, mesmo se forem prolongadas infinitamente (como os trilhos retilíneos do trem ou lados opostos de um retângulo)."
+      },
+      {
+        id: "reta_04",
+        topic: "Posições das Retas",
+        text: "Quando duas retas se cruzam em um único ponto, elas são chamadas de retas concorrentes. Quantas semirretas e quantos ângulos ficam determinados nesse ponto de encontro?",
+        options: [
+          "4 semirretas com origem no ponto e 4 ângulos",
+          "2 semirretas e apenas 1 ângulo",
+          "3 semirretas e 2 ângulos",
+          "8 semirretas e 1 ângulo raso"
+        ],
+        correct: 0,
+        explanation: "No cruzamento de duas retas concorrentes, o ponto de encontro divide cada reta em duas semirretas opostas (totalizando 4 semirretas com origem comum) e forma 4 ângulos ao redor do ponto."
+      },
+
+      // 6. Retas Perpendiculares (Páginas 103 a 104)
+      {
+        id: "reta_05",
+        topic: "Retas Perpendiculares",
+        text: "Duas retas concorrentes são chamadas de PERPENDICULARES quando o seu cruzamento forma:",
+        options: [
+          "Quatro ângulos retos (de 90° cada)",
+          "Apenas ângulos agudos bem fechadinhos",
+          "Dois ângulos agudos e dois obtusos",
+          "Nenhum ponto de contato"
+        ],
+        correct: 0,
+        explanation: "Retas perpendiculares são um caso especial de retas concorrentes: elas se cruzam formando exatamente 4 ângulos retos (90° cada), como a cruz perfeita ou a dobra em cruz de uma folha."
+      },
+
+      // 7. Giros e Frações de Volta (Páginas 96 a 99)
+      {
+        id: "giro_01",
+        topic: "Giros e Ângulos",
+        text: "Um skatista está de frente para a rampa e realiza um giro de 'meia-volta'. Para qual direção ele estará virado após o giro?",
+        options: [
+          "Ele estará virado de costas para a rampa (sentido oposto ao inicial).",
+          "Ele continuará de frente para a rampa exatamente como começou.",
+          "Ele estará virado para o seu lado direito formando 90°.",
+          "Ele estará inclinado para o chão em 45°."
+        ],
+        correct: 0,
+        explanation: "Um giro de 'meia-volta' (180°) inverte completamente o sentido do observador. Se ele estava de frente para a rampa, passará a ficar exatamente de costas para ela."
+      },
+      {
+        id: "giro_02",
+        topic: "Giros no Relógio",
+        text: "Um relógio de ponteiros marca exatamente 3h00. Se o ponteiro maior (dos minutos) der um giro de 1/4 de volta no sentido horário, que horário o relógio passará a marcar?",
+        options: [
+          "3h15",
+          "3h30",
+          "3h45",
+          "4h00"
+        ],
+        correct: 0,
+        explanation: "O ponteiro dos minutos dá 1 volta completa a cada 60 minutos. Como 1/4 de 60 minutos é 15 minutos (60 ÷ 4 = 15), o ponteiro que estava no 12 vai para o 3, marcando 3 horas e 15 minutos."
+      },
+
+      // 8. Classificação de Ângulos (Páginas 100 a 102)
+      {
+        id: "ang_01",
+        topic: "Classificação de Ângulos",
+        text: "Em relação à abertura dos ângulos, como classificamos um ângulo cuja abertura é MENOR que a de um ângulo reto (menor que 90°)?",
+        options: [
+          "Ângulo agudo",
+          "Ângulo obtuso",
+          "Ângulo raso",
+          "Ângulo de volta inteira"
+        ],
+        correct: 0,
+        explanation: "Ângulo reto = 90° (1/4 de volta). Ângulo agudo = menor que 90°. Ângulo obtuso = maior que 90° e menor que 180° (meia-volta)."
+      },
+      {
+        id: "ang_02",
+        topic: "Classificação de Ângulos",
+        text: "Quantos ângulos retos encontramos no contorno de uma porta retangular tradicional de sala de aula?",
+        options: [
+          "4 ângulos retos (um em cada canto)",
+          "2 ângulos agudos e 2 obtusos",
+          "1 ângulo reto apenas na base",
+          "Nenhum ângulo reto"
+        ],
+        correct: 0,
+        explanation: "Como a porta tem o formato de um retângulo, seus quatro cantos formam encontros perpendiculares perfeitos, totalizando 4 ângulos retos de 90°."
+      },
+      {
+        id: "ang_03",
+        topic: "Medida em Graus",
+        text: "Sabendo que uma volta inteira corresponde a 360° e que o ângulo reto corresponde a 90° (1/4 de volta), quanto mede um ângulo de meia-volta e um de 1/8 de volta, respectivamente?",
+        options: [
+          "180° e 45°",
+          "180° e 90°",
+          "270° e 60°",
+          "90° e 30°"
+        ],
+        correct: 0,
+        explanation: "Meia-volta = 360° ÷ 2 = 180°. Já 1/8 de volta = 360° ÷ 8 = 45° (que é a metade de um ângulo reto de 90°)."
+      },
+
+      // 9. Ângulos em Quadriláteros e Figuras (Páginas 101 e 103)
+      {
+        id: "ang_04",
+        topic: "Ângulos em Polígonos",
+        text: "Um trapézio cujos lados não formam cantos retos possui apenas ângulos:",
+        options: [
+          "Agudos (fechados) e obtusos (abertos)",
+          "Retos exclusivamente",
+          "Apenas ângulos de 360 graus",
+          "Apenas semirretas paralelas sem ângulos"
+        ],
+        correct: 0,
+        explanation: "Nos trapézios sem ângulos retos (como o isósceles ou escaleno tradicional), dois dos seus vértices formam ângulos agudos (< 90°) e os outros dois formam ângulos obtusos (> 90°)."
+      },
+
+      // 10. Localização no Plano e Malha Cartesiana (Página 105)
+      {
+        id: "malha_01",
+        topic: "Plano e Malha Cartesiana",
+        text: "No jogo eletrônico da página 105, um robô parte da origem (ponto 0,0) e deve ir até um ponto andando primeiro para o Leste (para a direita) e depois para o Norte (para cima). Se o robô anda 3 unidades para o Leste e 4 unidades para o Norte, quais são as coordenadas desse ponto?",
+        options: [
+          "Coluna 3 (Leste) e Linha 4 (Norte)",
+          "Coluna 4 (Leste) e Linha 3 (Norte)",
+          "Coluna 7 (Leste) e Linha 1 (Norte)",
+          "Coluna 1 (Leste) e Linha 2 (Norte)"
+        ],
+        correct: 0,
+        explanation: "Na malha quadriculada cartesiana, indicamos primeiro o deslocamento horizontal (no eixo Leste/horizontal: 3 unidades) e em seguida o deslocamento vertical (no eixo Norte/vertical: 4 unidades)."
+      },
+      {
+        id: "malha_02",
+        topic: "Trajetos e Comandos",
+        text: "Em uma malha quadriculada, um carrinho segue a sequência de comandos: 'Avançar 3 quadros, girar 1/4 de volta para a direita e avançar mais 2 quadros'. O comando 'girar 1/4 de volta' significa:",
+        options: [
+          "Fazer uma curva com um ângulo reto (90°) mudando de direção.",
+          "Dar uma volta completa e continuar na mesma linha reta.",
+          "Dar ré no carrinho até a linha de largada.",
+          "Inverter o sentido fazendo meia-volta (180°)."
+        ],
+        correct: 0,
+        explanation: "Girar um quarto de volta (1/4 de volta) corresponde exatamente a um giro de 90° (ângulo reto), que permite mudar a direção perpendicularmente entre as linhas da malha."
+      },
+      {
+        id: "geo_esp_07",
+        topic: "Planificações do Cubo",
+        text: "Quantos quadrados idênticos compõem a planificação completa de uma caixa cúbica fechada?",
+        options: [
+          "6 quadrados",
+          "5 quadrados",
+          "8 quadrados",
+          "4 quadrados"
+        ],
+        correct: 0,
+        explanation: "O cubo possui exatamente 6 faces quadradas idênticas. Por isso, seu molde desdobrado no papel é sempre formado pela união de 6 quadrados dispostos de modo que não haja sobreposição ao dobrar."
+      }
+    ];
+
+    const STORAGE_KEY = "simulado_matematica_history_v1";
+
+    let currentQuizQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = {}; // { questionIndex: chosenOptionIndex }
+    let attemptsHistory = [];
+
+    // Load history from localStorage on startup
+    function loadHistory() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          attemptsHistory = JSON.parse(saved);
+        } else {
+          attemptsHistory = [];
+        }
+      } catch (e) {
+        console.error("Falha ao acessar localStorage", e);
+        attemptsHistory = [];
+      }
+      updateHistoryBadge();
+    }
+
+    function saveHistory(entry) {
+      try {
+        attemptsHistory.unshift(entry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(attemptsHistory));
+      } catch (e) {
+        console.error("Falha ao salvar no localStorage", e);
+      }
+      updateHistoryBadge();
+    }
+
+    function clearHistoryData() {
+      if (attemptsHistory.length === 0) return;
+      localStorage.removeItem(STORAGE_KEY);
+      attemptsHistory = [];
+      updateHistoryBadge();
+      renderHistoryModalList();
+    }
+
+    function updateHistoryBadge() {
+      const badge = document.getElementById("historyCount");
+      if (badge) badge.innerText = attemptsHistory.length;
+    }
+
+    /* Helper: Fisher-Yates shuffle array clone */
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function generateTenRandomQuestions() {
+      // 1. Pick 10 random questions from bank
+      const shuffledBank = shuffleArray(QUESTION_BANK);
+      const selected = shuffledBank.slice(0, 10);
+
+      // 2. For each question, shuffle its 4 options to avoid answer pattern memorization
+      return selected.map((q) => {
+        const originalCorrectText = q.options[q.correct];
+        const shuffledOptions = shuffleArray(q.options);
+        const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+
+        return {
+          ...q,
+          options: shuffledOptions,
+          correct: newCorrectIndex
+        };
+      });
+    }
+
+    function startNewQuiz() {
+      // Generate new set of 10 questions with randomized answers
+      currentQuizQuestions = generateTenRandomQuestions();
+      currentQuestionIndex = 0;
+      userAnswers = {};
+
+      // Switch views
+      document.getElementById("welcomeScreen").classList.add("hidden");
+      document.getElementById("resultsScreen").classList.add("hidden");
+      document.getElementById("quizScreen").classList.remove("hidden");
+
+      renderQuestion(0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderQuestion(index) {
+      currentQuestionIndex = index;
+      const q = currentQuizQuestions[index];
+      const total = currentQuizQuestions.length;
+
+      // Update Header & Progress
+      document.getElementById("currentQuestionNum").innerText = index + 1;
+      document.getElementById("totalQuestionsCount").innerText = total;
+      document.getElementById("topicBadge").innerText = q.topic;
+
+      const progressPct = ((index + 1) / total) * 100;
+      document.getElementById("progressBarFill").style.width = `${progressPct}%`;
+
+      // Update Text
+      document.getElementById("questionText").innerText = `${index + 1}. ${q.text}`;
+
+      // Handle custom SVG illustration if applicable
+      const visualContainer = document.getElementById("questionVisualContainer");
+      const visualSvg = getVisualSvgForTopic(q.id);
+      if (visualSvg) {
+        visualContainer.innerHTML = visualSvg;
+        visualContainer.classList.remove("hidden");
+      } else {
+        visualContainer.classList.add("hidden");
+        visualContainer.innerHTML = "";
+      }
+
+      // Hide warning
+      document.getElementById("selectionWarning").classList.add("hidden");
+
+      // Render Options
+      const optionsContainer = document.getElementById("optionsContainer");
+      optionsContainer.innerHTML = "";
+
+      const letters = ["A", "B", "C", "D"];
+      const selectedOption = userAnswers[index];
+
+      q.options.forEach((optText, optIdx) => {
+        const isSelected = selectedOption === optIdx;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.onclick = () => selectOption(optIdx);
+
+        // Styling based on state
+        const baseClass = "w-full text-left p-3.5 sm:p-4 rounded-2xl border transition flex items-center justify-between group";
+        const stateClass = isSelected
+          ? "border-indigo-600 bg-indigo-50/80 shadow-sm text-indigo-950 font-medium ring-2 ring-indigo-500/20"
+          : "border-slate-200 hover:border-indigo-200 hover:bg-slate-50/80 text-slate-700";
+
+        btn.className = `${baseClass} ${stateClass}`;
+        btn.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-700'} transition">
+              ${letters[optIdx]}
+            </span>
+            <span class="text-sm sm:text-base leading-snug">${optText}</span>
+          </div>
+          <div class="w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300'}">
+            ${isSelected ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+          </div>
+        `;
+        optionsContainer.appendChild(btn);
+      });
+
+      // Update Navigation Buttons
+      const btnPrev = document.getElementById("btnPrev");
+      btnPrev.disabled = index === 0;
+
+      const btnNextText = document.getElementById("btnNextText");
+      btnNextText.innerText = (index === total - 1) ? "Finalizar Simulado" : "Próxima";
+    }
+
+    function selectOption(optIdx) {
+      userAnswers[currentQuestionIndex] = optIdx;
+      document.getElementById("selectionWarning").classList.add("hidden");
+      renderQuestion(currentQuestionIndex);
+    }
+
+    function navigateQuestion(direction) {
+      const nextIdx = currentQuestionIndex + direction;
+      if (nextIdx >= 0 && nextIdx < currentQuizQuestions.length) {
+        renderQuestion(nextIdx);
+      }
+    }
+
+    function handleNextClick() {
+      // Ensure user picked an option before proceeding
+      if (userAnswers[currentQuestionIndex] === undefined) {
+        document.getElementById("selectionWarning").classList.remove("hidden");
+        return;
+      }
+
+      if (currentQuestionIndex < currentQuizQuestions.length - 1) {
+        navigateQuestion(1);
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function getVisualSvgForTopic(questionId) {
+      switch (questionId) {
+        case "geo_esp_03": // Cubo canudos e bolinhas
+          return `
+            <svg class="h-28 w-44" viewBox="0 0 160 100" fill="none" stroke="currentColor">
+              <!-- Back Face -->
+              <rect x="45" y="15" width="60" height="60" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 3"/>
+              <!-- Connecting Edges -->
+              <line x1="20" y1="35" x2="45" y2="15" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 3"/>
+              <line x1="80" y1="35" x2="105" y2="15" stroke="#4f46e5" stroke-width="2.5"/>
+              <line x1="20" y1="95" x2="45" y2="75" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3 3"/>
+              <line x1="80" y1="95" x2="105" y2="75" stroke="#4f46e5" stroke-width="2.5"/>
+              <!-- Front Face -->
+              <rect x="20" y="35" width="60" height="60" stroke="#4f46e5" stroke-width="2.5" fill="#e0e7ff" fill-opacity="0.3"/>
+              <!-- Vertices dots -->
+              <circle cx="20" cy="35" r="4" fill="#f43f5e" />
+              <circle cx="80" cy="35" r="4" fill="#f43f5e" />
+              <circle cx="20" cy="95" r="4" fill="#f43f5e" />
+              <circle cx="80" cy="95" r="4" fill="#f43f5e" />
+              <circle cx="45" cy="15" r="3.5" fill="#f43f5e" />
+              <circle cx="105" cy="15" r="3.5" fill="#f43f5e" />
+              <circle cx="45" cy="75" r="3.5" fill="#f43f5e" />
+              <circle cx="105" cy="75" r="3.5" fill="#f43f5e" />
+            </svg>
+          `;
+        case "reta_03": // Retas Paralelas
+          return `
+            <svg class="h-20 w-48" viewBox="0 0 180 70">
+              <line x1="15" y1="20" x2="165" y2="20" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" />
+              <line x1="15" y1="50" x2="165" y2="50" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" />
+              <text x="170" y="24" fill="#6366f1" font-size="12" font-weight="bold">r</text>
+              <text x="170" y="54" fill="#6366f1" font-size="12" font-weight="bold">s</text>
+            </svg>
+          `;
+        case "reta_05": // Retas Perpendiculares
+          return `
+            <svg class="h-28 w-36" viewBox="0 0 120 100">
+              <line x1="10" y1="50" x2="110" y2="50" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+              <line x1="60" y1="10" x2="60" y2="90" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+              <!-- 90 deg symbol -->
+              <rect x="60" y="38" width="12" height="12" fill="none" stroke="#e11d48" stroke-width="2" />
+              <circle cx="66" cy="44" r="1.5" fill="#e11d48" />
+            </svg>
+          `;
+        case "ang_01": // Ângulos comparados
+          return `
+            <svg class="h-24 w-60" viewBox="0 0 240 80">
+              <!-- Ângulo Agudo -->
+              <path d="M 20 60 L 60 60 L 50 25" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+              <text x="25" y="75" fill="#047857" font-size="11" font-weight="bold">Agudo (< 90°)</text>
+              <!-- Ângulo Reto -->
+              <path d="M 100 60 L 140 60 L 140 20" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" />
+              <rect x="130" y="50" width="10" height="10" fill="none" stroke="#4f46e5" stroke-width="1.5"/>
+              <text x="105" y="75" fill="#4338ca" font-size="11" font-weight="bold">Reto (90°)</text>
+              <!-- Ângulo Obtuso -->
+              <path d="M 230 60 L 190 60 L 170 30" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
+              <text x="180" y="75" fill="#b45309" font-size="11" font-weight="bold">Obtuso (> 90°)</text>
+            </svg>
+          `;
+        case "malha_01": // Malha Cartesiana
+          return `
+            <svg class="h-36 w-44" viewBox="0 0 160 140">
+              <!-- Grid lines -->
+              <defs>
+                <pattern id="gridPattern" width="25" height="25" patternUnits="userSpaceOnUse">
+                  <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+                </pattern>
+              </defs>
+              <rect x="25" y="10" width="125" height="100" fill="url(#gridPattern)" stroke="#94a3b8" />
+              <!-- Axes -->
+              <line x1="25" y1="110" x2="155" y2="110" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+              <line x1="25" y1="110" x2="25" y2="5" stroke="#334155" stroke-width="2.5" />
+              <!-- Target Point (3, 4) -> x = 25 + 3*25 = 100, y = 110 - 4*25 = 10 -->
+              <circle cx="100" cy="10" r="5" fill="#e11d48"/>
+              <text x="106" y="15" fill="#e11d48" font-size="10" font-weight="bold">(3, 4)</text>
+              <!-- Labels -->
+              <text x="80" y="125" fill="#475569" font-size="9" font-weight="bold">Leste (3)</text>
+              <text x="2" y="55" fill="#475569" font-size="9" font-weight="bold" transform="rotate(-90 15,55)">Norte (4)</text>
+            </svg>
+          `;
+        default:
+          return null;
+      }
+    }
+
+    function finishQuiz() {
+      let correctCount = 0;
+      const reviewDetails = [];
+
+      currentQuizQuestions.forEach((q, idx) => {
+        const chosen = userAnswers[idx];
+        const isCorrect = chosen === q.correct;
+        if (isCorrect) correctCount++;
+
+        reviewDetails.push({
+          questionText: q.text,
+          topic: q.topic,
+          userAnswerText: chosen !== undefined ? q.options[chosen] : "Sem resposta",
+          correctAnswerText: q.options[q.correct],
+          isCorrect: isCorrect,
+          explanation: q.explanation
+        });
+      });
+
+      const total = currentQuizQuestions.length;
+      const percentage = Math.round((correctCount / total) * 100);
+
+      // Save to history storage
+      const resultEntry = {
+        date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+        score: correctCount,
+        total: total,
+        percentage: percentage
+      };
+      saveHistory(resultEntry);
+
+      // Hide quiz, show results
+      document.getElementById("quizScreen").classList.add("hidden");
+      document.getElementById("resultsScreen").classList.remove("hidden");
+
+      // Set performance stats
+      document.getElementById("statScore").innerText = `${correctCount}/${total}`;
+      document.getElementById("statPercentage").innerText = `${percentage}%`;
+      document.getElementById("statAttemptNum").innerText = `#${attemptsHistory.length}`;
+
+      // Set Title and feedback tone
+      const heroBg = document.getElementById("resultHeroBg");
+      const scoreEmoji = document.getElementById("scoreEmoji");
+      const scoreTitle = document.getElementById("scoreTitle");
+      const scoreSubtitle = document.getElementById("scoreSubtitle");
+
+      if (percentage >= 80) {
+        heroBg.className = "absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-emerald-400 to-teal-500";
+        scoreEmoji.innerText = "🏆";
+        scoreEmoji.className = "w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-3xl bg-emerald-50 text-emerald-600 border border-emerald-200";
+        scoreTitle.innerText = "Excelente Desempenho!";
+        scoreSubtitle.innerText = "Parabéns! Você demonstrou pleno domínio dos conceitos de geometria e retas.";
+      } else if (percentage >= 60) {
+        heroBg.className = "absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-indigo-400 to-amber-500";
+        scoreEmoji.innerText = "👍";
+        scoreEmoji.className = "w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-3xl bg-indigo-50 text-indigo-600 border border-indigo-200";
+        scoreTitle.innerText = "Muito Bom Trabalho!";
+        scoreSubtitle.innerText = "Você acertou a maior parte. Veja os comentários nas questões que você errou para gabaritar na próxima!";
+      } else {
+        heroBg.className = "absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-amber-400 to-rose-500";
+        scoreEmoji.innerText = "📖";
+        scoreEmoji.className = "w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-3xl bg-amber-50 text-amber-600 border border-amber-200";
+        scoreTitle.innerText = "Vale a Pena Revisar!";
+        scoreSubtitle.innerText = "Não desanime! Leia com atenção a explicação de cada questão para fixar os conceitos e tente novamente.";
+      }
+
+      // Render Pedagogical Corrections List
+      renderCorrectionCards(reviewDetails);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderCorrectionCards(details) {
+      const container = document.getElementById("correctionList");
+      container.innerHTML = "";
+
+      details.forEach((item, i) => {
+        const card = document.createElement("div");
+        const statusBorder = item.isCorrect ? "border-emerald-200 bg-white" : "border-rose-200 bg-rose-50/20";
+        const badgeColor = item.isCorrect ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800";
+        const badgeText = item.isCorrect ? "✓ Acertou" : "✗ Errou";
+
+        card.className = `p-5 sm:p-6 rounded-2xl border ${statusBorder} shadow-sm space-y-3 transition`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${item.topic}</span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold ${badgeColor}">
+              ${badgeText}
+            </span>
+          </div>
+
+          <h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+            ${i + 1}. ${item.questionText}
+          </h4>
+
+          <!-- Answers Comparison Box -->
+          <div class="text-xs sm:text-sm space-y-1.5 pt-1">
+            <div class="p-2.5 rounded-xl ${item.isCorrect ? 'bg-emerald-50 text-emerald-900 font-medium' : 'bg-rose-50 text-rose-900'} flex items-start space-x-2">
+              <span class="font-bold flex-shrink-0">Sua resposta:</span>
+              <span>${item.userAnswerText}</span>
+            </div>
+
+            ${!item.isCorrect ? `
+              <div class="p-2.5 rounded-xl bg-emerald-50 text-emerald-950 font-medium flex items-start space-x-2 border border-emerald-200">
+                <span class="font-bold text-emerald-700 flex-shrink-0">Resposta correta:</span>
+                <span>${item.correctAnswerText}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Pedagogical Explanation Section -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="flex items-start space-x-2 text-xs sm:text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+              <span class="text-base flex-shrink-0">💡</span>
+              <p><strong class="text-slate-800">Por que esta é a resposta certa?</strong> ${item.explanation}</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function showHistoryModal() {
+      renderHistoryModalList();
+      document.getElementById("historyModal").classList.remove("hidden");
+    }
+
+    function closeHistoryModal() {
+      document.getElementById("historyModal").classList.add("hidden");
+    }
+
+    function renderHistoryModalList() {
+      const container = document.getElementById("historyTableContainer");
+      const emptyState = document.getElementById("historyEmptyState");
+
+      if (attemptsHistory.length === 0) {
+        container.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      container.innerHTML = "";
+
+      attemptsHistory.forEach((attempt, idx) => {
+        const attemptCard = document.createElement("div");
+        attemptCard.className = "p-3.5 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-between";
+
+        let scoreBadge = "bg-rose-100 text-rose-700";
+        if (attempt.percentage >= 80) scoreBadge = "bg-emerald-100 text-emerald-800";
+        else if (attempt.percentage >= 60) scoreBadge = "bg-indigo-100 text-indigo-700";
+
+        attemptCard.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">
+              #${attemptsHistory.length - idx}
+            </span>
+            <div>
+              <p class="text-xs text-slate-400">${attempt.date}</p>
+              <p class="text-sm font-bold text-slate-800">${attempt.score} acertos de ${attempt.total} questões</p>
+            </div>
+          </div>
+          <span class="px-3 py-1 rounded-xl text-xs font-black ${scoreBadge}">
+            ${attempt.percentage}%
+          </span>
+        `;
+        container.appendChild(attemptCard);
+      });
+    }
+
+    // Initialize application on load
+    window.onload = function () {
+      loadHistory();
+    };
+  </script>
+</body>
+</html>
